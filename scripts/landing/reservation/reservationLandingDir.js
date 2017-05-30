@@ -32,12 +32,12 @@ angular.module("nailShopApp")
 		        // store data so the calendar knows to render an event upon drop
 		        $(this).data('event', {
 		          title: $.trim($(this).text()), // use the element's text as the event title
-		          stick: false // maintain when user navigates (see docs on the renderEvent method)
+		          stick: true // maintain when user navigates (see docs on the renderEvent method)
 		        });
 		        // make the event draggable using jQuery UI
 		        $(this).draggable({
 		          zIndex: 999,
-		          revert: false,      // will cause the event to go back to its
+		          revert: true,      // will cause the event to go back to its
 		          revertDuration: 0  //  original position after the drag
 		        });
 
@@ -56,21 +56,20 @@ angular.module("nailShopApp")
 		      // store data so the calendar knows to render an event upon drop
 		      $(this).data('event', {
 		        title: $.trim($(this).text()), // use the element's text as the event title
-		        stick: false // maintain when user navigates (see docs on the renderEvent method)
+		        stick: true // maintain when user navigates (see docs on the renderEvent method)
 		      });
 
 		      // make the event draggable using jQuery UI
 		      $(this).draggable({
 		        zIndex: 999,
-		        revert: false,      // will cause the event to go back to its
+		        revert: true,      // will cause the event to go back to its
 		        revertDuration: 0  //  original position after the drag
 		      });
 		    });
 		    var events = [];
-		    // if(localStorage.getItem('calendar_events')){
-		    // 	events = angular.fromJson(localStorage.getItem('calendar_events'));
-		    // }
-
+		    if(localStorage.getItem('calendar_events')){
+		    	events = angular.fromJson(localStorage.getItem('calendar_events'));
+		    }
 		    var calendar = $('#calendar').fullCalendar({
 					height: 750,
 		      locale:'ko',
@@ -95,7 +94,7 @@ angular.module("nailShopApp")
 						}
 					},
 		      defaultView: 'agendaWeek',
-		      events: scope.data.events,
+		      events: events,
 					timeFormat: 'h:mm',
 					columnFormat: 'ddd M/D',
 		      droppable: true, // this allows things to be dropped onto the calendar
@@ -158,35 +157,34 @@ angular.module("nailShopApp")
 				    // element.bind('dblclick', function() {
 				    // });
 					},
-		      select: function(start, end, allDay) {
-		        var title = prompt('Event Title:');
-		        if (title) {
-		          calendar.fullCalendar('renderEvent',
-		            {
-		              title: title,
-		              start: start,
-		              end: end,
-		              className: "calendar-new-event",
-		              // allDay: allDay
-		            },
-		            true // make the event "stick"
-		          );
-		          var clientEvents = calendar.fullCalendar('clientEvents');
-		          scope.data.events = [];
-		          angular.forEach(clientEvents, function(event, event_index){
-								var event_new = {
-		          		title:event.title,
-		          		start:event.start,
-		          		end: event.end
-		          	};
-								if(event._id&&Number(event._id)>0) event_new['id'] = Number(event._id);
-		          	scope.data.events.push(event_new);
-		          });
-							// ****save 주는 공간
-		          // localStorage.setItem('calendar_events', JSON.stringify( events ) );
-		        }
-		        calendar.fullCalendar('unselect');
-		      },
+					select: function(start, end, allDay) {
+			      var title = prompt('Event Title:');
+			      if (title) {
+			        calendar.fullCalendar('renderEvent',
+			          {
+			            title: title,
+			            start: start,
+			            end: end,
+			            className: "calendar-new-event"
+			            // allDay: allDay
+			          },
+			          true // make the event "stick"
+			        );
+			        var clientEvents = calendar.fullCalendar('clientEvents');
+			        var events = [];
+			        angular.forEach(clientEvents, function(event, event_index){
+			        	events.push({
+			        		title:event.title,
+			        		start:event.start,
+			        		end: event.end,
+			        		allDay: event.allDay,
+			        		className: event.className
+			        	});
+			        });
+			        localStorage.setItem('calendar_events', JSON.stringify( events ) );
+			      }
+			      calendar.fullCalendar('unselect');
+			    },
 		      editable: true,
 		      drop: function(date, jsEvent, ui) {
 		        console.log('calendar 2 drop');

@@ -8,10 +8,10 @@
 
 angular.module('nailShopApp')
   // Local Server
-  // .constant('ServerURL','http://127.0.0.1:8000/')
+  .constant('ServerURL','http://127.0.0.1:8000/')
 
   // AWS Server
-  .constant('ServerURL','http://eb-idist-app-dev.ap-northeast-1.elasticbeanstalk.com/')
+  // .constant('ServerURL','http://eb-idist-app-dev.ap-northeast-1.elasticbeanstalk.com/')
 
   //  Server
 	.constant('ModelUrl', 'Develist')
