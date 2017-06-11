@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('nailShopApp')
-  .controller('LandingCtrl', function ($rootScope, $scope, $q, SiteR, PriceR, EventR) {
+  .controller('LandingCtrl', function ($rootScope, $scope, $q, SiteR, PriceR, EventR, storageS) {
 
     // Check Function Seciton
     $scope.checkAdmin = function(){
