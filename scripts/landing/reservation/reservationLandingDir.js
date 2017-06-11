@@ -13,8 +13,8 @@ angular.module("nailShopApp")
 
 		      var external_events = $( '#external-events' );
 		      var offset = external_events.offset();
-		      offset.right = external_events.width() + offset.left;
-		      offset.bottom = external_events.height() + offset.top;
+		      offset.right = external_events.width();
+		      offset.bottom = external_events.height();
 
 		      // Compare
 		      if (x >= offset.left
@@ -32,12 +32,12 @@ angular.module("nailShopApp")
 		        // store data so the calendar knows to render an event upon drop
 		        $(this).data('event', {
 		          title: $.trim($(this).text()), // use the element's text as the event title
-		          stick: true // maintain when user navigates (see docs on the renderEvent method)
+		          stick: false // maintain when user navigates (see docs on the renderEvent method)
 		        });
 		        // make the event draggable using jQuery UI
 		        $(this).draggable({
 		          zIndex: 999,
-		          revert: true,      // will cause the event to go back to its
+		          revert: false,      // will cause the event to go back to its
 		          revertDuration: 0  //  original position after the drag
 		        });
 
@@ -56,20 +56,21 @@ angular.module("nailShopApp")
 		      // store data so the calendar knows to render an event upon drop
 		      $(this).data('event', {
 		        title: $.trim($(this).text()), // use the element's text as the event title
-		        stick: true // maintain when user navigates (see docs on the renderEvent method)
+		        stick: false // maintain when user navigates (see docs on the renderEvent method)
 		      });
 
 		      // make the event draggable using jQuery UI
 		      $(this).draggable({
 		        zIndex: 999,
-		        revert: true,      // will cause the event to go back to its
+		        revert: false,      // will cause the event to go back to its
 		        revertDuration: 0  //  original position after the drag
 		      });
 		    });
 		    var events = [];
-		    if(localStorage.getItem('calendar_events')){
-		    	events = angular.fromJson(localStorage.getItem('calendar_events'));
-		    }
+		    // if(localStorage.getItem('calendar_events')){
+		    // 	events = angular.fromJson(localStorage.getItem('calendar_events'));
+		    // }
+
 		    var calendar = $('#calendar').fullCalendar({
 					height: 750,
 		      locale:'ko',
@@ -94,7 +95,7 @@ angular.module("nailShopApp")
 						}
 					},
 		      defaultView: 'agendaWeek',
-		      events: events,
+		      events: scope.data.events,
 					timeFormat: 'h:mm',
 					columnFormat: 'ddd M/D',
 		      droppable: true, // this allows things to be dropped onto the calendar
@@ -157,35 +158,40 @@ angular.module("nailShopApp")
 				    // element.bind('dblclick', function() {
 				    // });
 					},
-					select: function(start, end, allDay) {
-			      var title = prompt('Event Title:');
-			      if (title) {
-			        calendar.fullCalendar('renderEvent',
-			          {
-			            title: title,
-			            start: start,
-			            end: end,
-			            className: "calendar-new-event"
-			            // allDay: allDay
-			          },
-			          true // make the event "stick"
-			        );
-			        var clientEvents = calendar.fullCalendar('clientEvents');
-			        var events = [];
-			        angular.forEach(clientEvents, function(event, event_index){
-			        	events.push({
-			        		title:event.title,
-			        		start:event.start,
-			        		end: event.end,
-			        		allDay: event.allDay,
-			        		className: event.className
-			        	});
-			        });
-			        localStorage.setItem('calendar_events', JSON.stringify( events ) );
-			      }
-			      calendar.fullCalendar('unselect');
-			    },
-		      editable: true,
+		      select: function(start, end, allDay) {
+						console.info('start',start);
+		        var title = prompt('Event Title:');
+		        if (title) {
+		          calendar.fullCalendar('renderEvent',
+		            {
+		              title: title,
+		              start: start,
+		              end: end,
+		              className: "calendar-new-event",
+		              // allDay: allDay
+		            },
+		            true // make the event "stick"
+		          );
+		          var clientEvents = calendar.fullCalendar('clientEvents');
+		          scope.data.events = [];
+		          angular.forEach(clientEvents, function(event, event_index){
+								var event_new = {
+		          		title:event.title,
+		          		start:event.start,
+		          		end: event.end
+		          	};
+								// console.info('event_new',event_new);
+								// console.info('event.start',event.start);
+								if(event._id&&Number(event._id)>0) event_new['id'] = Number(event._id);
+		          	scope.data.events.push(event_new);
+								console.info('scope.data.events',scope.data.events);
+		          });
+							// ****save 주는 공간
+		          // localStorage.setItem('calendar_events', JSON.stringify( events ) );
+		        }
+		        calendar.fullCalendar('unselect');
+		      },
+		      editable: ($rootScope.state.current.name == 'landing/admin') ? true : false,
 		      drop: function(date, jsEvent, ui) {
 		        console.log('calendar 2 drop');
 		        console.log(date);
